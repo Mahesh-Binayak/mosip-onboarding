@@ -9,7 +9,7 @@ on:
       - '1.2.*'
       - master
       - test
-      - MOSIP-35889
+      - MOSIP-35987
   pull_request:
     branches:
       - main
@@ -42,19 +42,29 @@ jobs:
         uses: aquasecurity/trivy-action@0.20.0
         with:
           image-ref: '${{ env.SERVICE_NAME }}:${{ env.VERSION }}'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          format: 'table'  # Use "table" format for better readability in .txt
+          output: 'trivy-results.txt'
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
           exit-code: 1  # Fail the job if vulnerabilities found
 
-      - name: Check if SARIF file exists
+      - name: Check if Trivy result file exists
         run: |
-          ls -l trivy-results.sarif
+          ls -l trivy-results.txt
         if: failure()  # This will print the error if the file doesn't exist
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+      - name: Format Trivy Scan Result
+        run: |
+          if [ -s trivy-results.txt ]; then
+            echo -e "## Vulnerability Scan Results\n<details><summary>Details</summary>\n\n\`\`\`\n$(cat trivy-results.txt)\n\`\`\`\n</details>" > formatted-trivy-result.md
+          else
+            echo -e "## Vulnerability Scan Results\nNo vulnerabilities were detected." > formatted-trivy-result.md
+          fi
+
+      - name: Comment PR with Trivy scan results
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
-          sarif_file: 'trivy-results.sarif'
-        if: always()  # Ensure this step runs even if the previous step fails
+          path: formatted-trivy-result.md
+
+      - name: Clean up Trivy result files
+        run: rm -f trivy-results.txt formatted-trivy-result.md
