@@ -18,7 +18,6 @@ on:
       - '1.2.*'
       - master
       - test
-      - MOSIP-35889
       - MOSIP-35987
 
 jobs:
@@ -39,6 +38,7 @@ jobs:
           docker build . --file Dockerfile --tag ${{ env.SERVICE_NAME }}:${{ env.VERSION }}
 
       - name: Run Trivy vulnerability scanner
+        id: trivy-scan
         uses: aquasecurity/trivy-action@0.20.0
         with:
           image-ref: '${{ env.SERVICE_NAME }}:${{ env.VERSION }}'
@@ -47,6 +47,11 @@ jobs:
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: true
           exit-code: 1  # Fail the job if vulnerabilities found
+
+      - name: Check if SARIF file exists
+        run: |
+          ls -l trivy-results.sarif
+        if: failure()  # This will print the error if the file doesn't exist
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
