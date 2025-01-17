@@ -308,6 +308,7 @@ onboard_mock_relying_party_with_mock_rp_oidc_client(){
 	--folder partner_request_mapping_to_policyname \
 	--folder approve-partner-mapping-to-policy \
 	--folder get-jwks \
+	--folder keycloak-authentication-for-mock-plugin \
 	--folder create-oidc-client \
 	--folder create-oidc-client-through-esignet \
 	--folder delete-user \
@@ -520,6 +521,7 @@ onboard_esignet_signup_oidc_partner(){
 	--env-var oidc-clientid="$OIDC_CLIENTID" \
 	--folder 'create_keycloak_user' \
 	--folder authenticate-to-upload-certs \
+	--folder keycloak-authentication-for-mock-plugin \
 	--folder create-oidc-client-through-esignet-signup \
 	--folder delete-user \
     $ADD_SSL_NEWMAN \
