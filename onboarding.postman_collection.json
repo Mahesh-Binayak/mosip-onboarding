@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "db876b6f-3b70-4a09-abf8-e4a42dd64e17",
+		"_postman_id": "40683dc0-a030-404d-9a8d-e3e78ffd120b",
 		"name": "onboarding Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "12620596"
@@ -2700,6 +2700,48 @@
 									"key": "size",
 									"value": "2048"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "keycloak-authentication-for-mock-plugin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "client_id",
+									"value": "mosip-pms-client",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{module-secretkey}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{keycloak-url}}/auth/realms/mosip/protocol/openid-connect/token",
+							"host": [
+								"{{keycloak-url}}"
+							],
+							"path": [
+								"auth",
+								"realms",
+								"mosip",
+								"protocol",
+								"openid-connect",
+								"token"
 							]
 						}
 					},
