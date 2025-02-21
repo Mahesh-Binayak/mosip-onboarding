@@ -7,7 +7,7 @@ C = IN
 ST = Kar
 L = Blr
 O = IITB
-CN = mpartner-custom-relyingparty19-Client
+CN = mpartner-custom-relyingparty20-Client
 [v3_req]
 # Extensions for client certificates (`man x509v3_config`).
 basicConstraints = CA:FALSE

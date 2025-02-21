@@ -7,7 +7,7 @@ C = IN
 ST = Kar
 L = Blr
 O = IITB
-CN = mpartner-custom-relyingparty19-Root
+CN = mpartner-custom-relyingparty20-Root
 [v3_req]
 keyUsage = critical, digitalSignature, keyAgreement
 extendedKeyUsage = serverAuth

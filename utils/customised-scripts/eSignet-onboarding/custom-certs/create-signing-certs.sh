@@ -47,6 +47,7 @@ sed -i 's/\(^emailAddress =\).*/\1 '$email_id'/' $path/custom-certs/client-opens
 sed -i 's/\(^CN =\).*/\1 '$common_name'-Client/' $path/custom-certs/client-openssl.cnf
 
 cert_path=$path/custom-certs/$partner_name
+rm key.pwd
 
 if [ -d "$cert_path" ]
 then
