@@ -432,7 +432,7 @@ onboard_mimoto_oidc_partner(){
 	sh $MYDIR/certs/convert.sh $MYDIR
 	mv $MYDIR/certs/$PARTNER_KC_USERNAME/keystore.p12 $MYDIR/certs/$PARTNER_KC_USERNAME/oidckeystore.p12
 
-	kubectl -n $ns_mimoto create secret generic mimotooidc --from-file=$MYDIR/certs/$PARTNER_KC_USERNAME/oidckeystore.p12 --dry-run=client -o yaml | kubectl apply -f -
+	kubectl -n $custom_ns create secret generic mimotooidc --from-file=$MYDIR/certs/$PARTNER_KC_USERNAME/oidckeystore.p12 --dry-run=client -o yaml | kubectl apply -f -
 
 	if [ $? -gt 0 ]; then
       echo "JWK Key generation failed; EXITING";
@@ -676,8 +676,14 @@ elif [ "$MODULE" = "resident-oidc" ]; then
   root_cert_path="$MYDIR/certs/$PARTNER_KC_USERNAME/RootCA.pem"
   client_cert_path="$MYDIR/certs/$PARTNER_KC_USERNAME/Client.pem"
   onboard_mimoto_keybinding_partner
-  kubectl create secret generic mimoto-wallet-binding-partner-api-key -n $ns_mimoto --from-literal=mimoto-wallet-binding-partner-api-key=$mpartnerdefaultmimotokeybindingapikey --dry-run=client -o yaml | kubectl apply -f -
+  kubectl create secret generic mimoto-wallet-binding-partner-api-key -n $custom_ns --from-literal=mimoto-wallet-binding-partner-api-key=$mpartnerdefaultmimotokeybindingapikey --dry-run=client -o yaml | kubectl apply -f -
   elif [ "$MODULE" = "mimoto-oidc" ]; then
+    echo "Please provide the namespace.P.S : It should be exactly the same as the namespace which has been provided in the install.sh script before this "
+        read -p "Provide the namespace: " custom_ns
+              if [[ -z "$custom_ns" ]]; then
+                echo "No namespace provided; EXITING."
+                exit 1
+              fi
   APPLICATION_ID=partner
   MODULE_CLIENTID=mosip-pms-client
   MODULE_SECRETKEY=$mosip_pms_client_secret
@@ -693,7 +699,7 @@ elif [ "$MODULE" = "resident-oidc" ]; then
   LOGO_URI="https://$( printenv mosip-api-host )/inji/inji-home-logo.png"
   REDIRECT_URIS="io.mosip.residentapp.inji://oauthredirect,https://inji.$( printenv installation-domain).mosip.net/redirect"
   onboard_mimoto_oidc_partner
-  kubectl create secret generic mimoto-oidc-partner-clientid -n $ns_mimoto --from-literal=mimoto-oidc-partner-clientid=$mpartnerdefaultmimotooidcclientID --dry-run=client -o yaml | kubectl apply -f -
+  kubectl create secret generic mimoto-oidc-partner-clientid -n $custom_ns --from-literal=mimoto-oidc-partner-clientid=$mpartnerdefaultmimotooidcclientID --dry-run=client -o yaml | kubectl apply -f -
   elif [ "$MODULE" = "signup-oidc" ]; then
   APPLICATION_ID=partner
   MODULE_CLIENTID=mosip-pms-client
