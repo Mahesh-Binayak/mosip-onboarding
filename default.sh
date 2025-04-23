@@ -678,12 +678,6 @@ elif [ "$MODULE" = "resident-oidc" ]; then
   onboard_mimoto_keybinding_partner
   kubectl create secret generic mimoto-wallet-binding-partner-api-key -n $custom_ns --from-literal=mimoto-wallet-binding-partner-api-key=$mpartnerdefaultmimotokeybindingapikey --dry-run=client -o yaml | kubectl apply -f -
   elif [ "$MODULE" = "mimoto-oidc" ]; then
-    echo "Please provide the namespace.P.S : It should be exactly the same as the namespace which has been provided in the install.sh script before this "
-        read -p "Provide the namespace: " custom_ns
-              if [[ -z "$custom_ns" ]]; then
-                echo "No namespace provided; EXITING."
-                exit 1
-              fi
   APPLICATION_ID=partner
   MODULE_CLIENTID=mosip-pms-client
   MODULE_SECRETKEY=$mosip_pms_client_secret
@@ -696,6 +690,7 @@ elif [ "$MODULE" = "resident-oidc" ]; then
   root_cert_path="$MYDIR/certs/$PARTNER_KC_USERNAME/RootCA.pem"
   client_cert_path="$MYDIR/certs/$PARTNER_KC_USERNAME/Client.pem"
   OIDC_CLIENT_NAME=mimoto-oidc
+  custom_ns=$( printenv custom-namespace )
   LOGO_URI="https://$( printenv mosip-api-host )/inji/inji-home-logo.png"
   REDIRECT_URIS="io.mosip.residentapp.inji://oauthredirect,https://inji.$( printenv installation-domain).mosip.net/redirect"
   onboard_mimoto_oidc_partner
