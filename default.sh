@@ -690,7 +690,7 @@ elif [ "$MODULE" = "resident-oidc" ]; then
   root_cert_path="$MYDIR/certs/$PARTNER_KC_USERNAME/RootCA.pem"
   client_cert_path="$MYDIR/certs/$PARTNER_KC_USERNAME/Client.pem"
   OIDC_CLIENT_NAME=mimoto-oidc
-  custom_ns=$( printenv custom-namespace )
+  custom_ns=$( printenv customnamespace )
   LOGO_URI="https://$( printenv mosip-api-host )/inji/inji-home-logo.png"
   REDIRECT_URIS="io.mosip.residentapp.inji://oauthredirect,https://inji.$( printenv installation-domain).mosip.net/redirect"
   onboard_mimoto_oidc_partner
