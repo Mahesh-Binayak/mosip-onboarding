@@ -247,7 +247,7 @@ updateStrategy:
 ## Additional environment variables to set
 ## Example:
 extraEnvVars:
-  - name: custom-namespace
+  - name: customnamespace
     value: "injiweb"
 ## ConfigMap with extra environment variables that used
 ##
