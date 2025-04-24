@@ -246,11 +246,9 @@ updateStrategy:
 
 ## Additional environment variables to set
 ## Example:
-extraEnvVars:
-  - name: custom-namespace
-    value: "injiweb"
-## ConfigMap with extra environment variables that used
-##
+## extraEnvVars:
+##   - name: FOO
+##     value: "bar"
 extraEnvVarsCM:
   - global
   - keycloak-env-vars
