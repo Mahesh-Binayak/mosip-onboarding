@@ -673,6 +673,7 @@ elif [ "$MODULE" = "resident-oidc" ]; then
   PARTNER_KC_USERPASSWORD=mimotokeybinding-kc-mockuserpassword
   PARTNER_ORGANIZATION_NAME=IITB
   PARTNER_TYPE=Auth_Partner
+  custom_ns=$( printenv customnamespace )
   root_cert_path="$MYDIR/certs/$PARTNER_KC_USERNAME/RootCA.pem"
   client_cert_path="$MYDIR/certs/$PARTNER_KC_USERNAME/Client.pem"
   onboard_mimoto_keybinding_partner
