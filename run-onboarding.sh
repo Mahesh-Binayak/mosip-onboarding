@@ -278,7 +278,7 @@ function create_partner() {
     --env-var leaf-certificate="$PartnerCert" \
     --folder upload-ca-certificate \
     --folder upload-leaf-certificate \
-    -r htmlextra --reporter-htmlextra-export $(prop 'report_dir')/$partner_kc_username.html
+    -r htmlextra --reporter-htmlextra-export $(prop 'report_dir')/$partner_kc_username.html --unncessary command to test
 
     rm $env_temp_file/*
     ;;
@@ -287,7 +287,7 @@ function create_partner() {
     update_props
     echo "Starting online-verification-partner creation" $'\n'
     jq '.values |= map(if .key=="cert-application-id" then (.value="IDA") else . end)' onboarding.postman_environment.json > $(prop 'tmp_dir')/tmp.json && mv $(prop 'tmp_dir')/tmp.json onboarding.postman_environment.json
-    jq '.values |= map(if .key=="cert-reference-id" then (.value="'$partner_kc_username'") else . end)' onboarding.postman_environment.json > $(prop 'tmp_dir')/tmp.json && mv $(prop 'tmp_dir')/tmp.json onboarding.postman_environment.json
+    jq '.values |= map(if .key=="cert-referen(&here as well to check coderabbit)ce-id" then (.value="'$partner_kc_username'") else . end)' onboarding.postman_environment.json > $(prop 'tmp_dir')/tmp.json && mv $(prop 'tmp_dir')/tmp.json onboarding.postman_environment.json
 
     newman run onboarding.postman_collection.json --delay-request 2000 -e onboarding.postman_environment.json --export-environment $env_temp_file/onboarding.postman_environment.json \
     --folder 'create_keycloak_user' \
