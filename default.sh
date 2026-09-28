@@ -517,7 +517,7 @@ onboard_mimoto_oidc_partner(){
 	sh $MYDIR/certs/convert.sh $MYDIR
 	mv $MYDIR/certs/$PARTNER_KC_USERNAME/keystore.p12 $MYDIR/certs/$PARTNER_KC_USERNAME/oidckeystore.p12
 
-	kubectl -n $custom_ns create secret generic mimotooidc --from-file=$MYDIR/certs/$PARTNER_KC_USERNAME/oidckeystore.p12 --dry-run=client -o yaml | kubectl apply -f -
+	kubectl -n $custom_ns create secret generic "$MIMOTO_OIDC_KEYSTORE_SECRET_NAME" --from-file=$MYDIR/certs/$PARTNER_KC_USERNAME/oidckeystore.p12 --dry-run=client -o yaml | kubectl apply -f -
 
 	if [ $? -gt 0 ]; then
       echo "JWK Key generation failed; EXITING";
@@ -580,7 +580,7 @@ onboard_esignet_signup_oidc_partner(){
 	partner_cert=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' $client_cert_path)
 	sh $MYDIR/certs/convert.sh $MYDIR
   mv $MYDIR/certs/$PARTNER_KC_USERNAME/keystore.p12 $MYDIR/certs/$PARTNER_KC_USERNAME/oidckeystore.p12
-	kubectl -n $ns_signup create secret generic signup-keystore --from-file=$MYDIR/certs/$PARTNER_KC_USERNAME/oidckeystore.p12 --dry-run=client -o yaml | kubectl apply -f -
+	kubectl -n $ns_signup create secret generic "$SIGNUP_KEYSTORE_SECRET_NAME" --from-file=$MYDIR/certs/$PARTNER_KC_USERNAME/oidckeystore.p12 --dry-run=client -o yaml | kubectl apply -f -
 
 	if [ $? -gt 0 ]; then
       echo "JWK Key generation failed; EXITING";
@@ -751,6 +751,23 @@ MOCK_RELYING_PARTY_SERVICE_NAME="${MOCK_RELYING_PARTY_SERVICE_NAME:-mock-relying
 MOCK_RELYING_PARTY_UI_NAME="${MOCK_RELYING_PARTY_UI_NAME:-mock-relying-party-ui}"
 MOCK_RELYING_PARTY_PRIVATE_KEY_SECRET_NAME="${MOCK_RELYING_PARTY_PRIVATE_KEY_SECRET_NAME:-mock-relying-party-private-key-jwk}"
 
+# Same for the secrets the other modules write into the live cluster - the consuming
+# service's install.sh owns these names (e.g. esignet's deploy/esignet/install.sh creates
+# esignet-misp-onboarder-key and mounts mosip-esignet-misp-key; mimoto's
+# partner-onboarder/install.sh copies the mimoto-* secrets to config-server), so they're
+# passed in via properties/propertiesOverride rather than re-hardcoded here. Falls back to
+# the historical literal names if not supplied.
+ESIGNET_MISP_KEY_SECRET_NAME="${ESIGNET_MISP_KEY_SECRET_NAME:-esignet-misp-onboarder-key}"
+ESIGNET_MISP_KEY_SECRET_KEY="${ESIGNET_MISP_KEY_SECRET_KEY:-mosip-esignet-misp-key}"
+RESIDENT_OIDC_CLIENTID_SECRET_NAME="${RESIDENT_OIDC_CLIENTID_SECRET_NAME:-resident-oidc-onboarder-key}"
+RESIDENT_OIDC_CLIENTID_SECRET_KEY="${RESIDENT_OIDC_CLIENTID_SECRET_KEY:-resident-oidc-clientid}"
+MIMOTO_KEYBINDING_APIKEY_SECRET_NAME="${MIMOTO_KEYBINDING_APIKEY_SECRET_NAME:-mimoto-wallet-binding-partner-api-key}"
+MIMOTO_KEYBINDING_APIKEY_SECRET_KEY="${MIMOTO_KEYBINDING_APIKEY_SECRET_KEY:-mimoto-wallet-binding-partner-api-key}"
+MIMOTO_OIDC_CLIENTID_SECRET_NAME="${MIMOTO_OIDC_CLIENTID_SECRET_NAME:-mimoto-oidc-partner-clientid}"
+MIMOTO_OIDC_CLIENTID_SECRET_KEY="${MIMOTO_OIDC_CLIENTID_SECRET_KEY:-mimoto-oidc-partner-clientid}"
+MIMOTO_OIDC_KEYSTORE_SECRET_NAME="${MIMOTO_OIDC_KEYSTORE_SECRET_NAME:-mimotooidc}"
+SIGNUP_KEYSTORE_SECRET_NAME="${SIGNUP_KEYSTORE_SECRET_NAME:-signup-keystore}"
+
 if [ "$MODULE" = "ida" ]; then
   upload_ida_root_cert
   upload_ida_cert
@@ -770,7 +787,7 @@ elif [ "$MODULE" = "esignet" ]; then
   MODULE_SECRETKEY=$mosip_pms_client_secret
   onboard_esignet_partner
   if [ "$SYNC_LIVE_DEPLOYMENT" != "false" ]; then
-    kubectl create secret generic esignet-misp-onboarder-key -n $ns_esignet --from-literal=mosip-esignet-misp-key=$MISP_LICENSE_KEY --dry-run=client -o yaml | kubectl apply -f -
+    kubectl create secret generic "$ESIGNET_MISP_KEY_SECRET_NAME" -n $ns_esignet --from-literal="$ESIGNET_MISP_KEY_SECRET_KEY"=$MISP_LICENSE_KEY --dry-run=client -o yaml | kubectl apply -f -
   fi
 elif [ "$MODULE" = "mock-rp-oidc" ]; then
   MODULE_SECRETKEY=$mosip_pms_client_secret
@@ -790,7 +807,7 @@ elif [ "$MODULE" = "resident-oidc" ]; then
   REDIRECT_URIS="${REDIRECT_URIS:-https://$( printenv mosip-api-internal-host )/resident/v1/login-redirect/**}"
   onboard_resident_oidc_client
   if [ "$SYNC_LIVE_DEPLOYMENT" != "false" ]; then
-    kubectl create secret generic resident-oidc-onboarder-key -n $ns_esignet --from-literal=resident-oidc-clientid=$mpartnerdefaultresidentoidcclientID --dry-run=client -o yaml | kubectl apply -f -
+    kubectl create secret generic "$RESIDENT_OIDC_CLIENTID_SECRET_NAME" -n $ns_esignet --from-literal="$RESIDENT_OIDC_CLIENTID_SECRET_KEY"=$mpartnerdefaultresidentoidcclientID --dry-run=client -o yaml | kubectl apply -f -
   fi
   elif [ "$MODULE" = "mimoto-keybinding" ]; then
   MODULE_SECRETKEY=$mosip_pms_client_secret
@@ -799,7 +816,7 @@ elif [ "$MODULE" = "resident-oidc" ]; then
   client_cert_path="$MYDIR/certs/$PARTNER_KC_USERNAME/Client.pem"
   onboard_mimoto_keybinding_partner
   if [ "$SYNC_LIVE_DEPLOYMENT" != "false" ]; then
-    kubectl create secret generic mimoto-wallet-binding-partner-api-key -n $custom_ns --from-literal=mimoto-wallet-binding-partner-api-key=$mpartnerdefaultmimotokeybindingapikey --dry-run=client -o yaml | kubectl apply -f -
+    kubectl create secret generic "$MIMOTO_KEYBINDING_APIKEY_SECRET_NAME" -n $custom_ns --from-literal="$MIMOTO_KEYBINDING_APIKEY_SECRET_KEY"=$mpartnerdefaultmimotokeybindingapikey --dry-run=client -o yaml | kubectl apply -f -
   fi
   elif [ "$MODULE" = "mimoto-oidc" ]; then
   MODULE_SECRETKEY=$mosip_pms_client_secret
@@ -810,7 +827,7 @@ elif [ "$MODULE" = "resident-oidc" ]; then
   REDIRECT_URIS="${REDIRECT_URIS:-io.mosip.residentapp.inji://oauthredirect,https://inji.$( printenv installation-domain).mosip.net/redirect}"
   onboard_mimoto_oidc_partner
   if [ "$SYNC_LIVE_DEPLOYMENT" != "false" ]; then
-    kubectl create secret generic mimoto-oidc-partner-clientid -n $custom_ns --from-literal=mimoto-oidc-partner-clientid=$mpartnerdefaultmimotooidcclientID --dry-run=client -o yaml | kubectl apply -f -
+    kubectl create secret generic "$MIMOTO_OIDC_CLIENTID_SECRET_NAME" -n $custom_ns --from-literal="$MIMOTO_OIDC_CLIENTID_SECRET_KEY"=$mpartnerdefaultmimotooidcclientID --dry-run=client -o yaml | kubectl apply -f -
   fi
   elif [ "$MODULE" = "signup-oidc" ]; then
   MODULE_SECRETKEY=$mosip_pms_client_secret

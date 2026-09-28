@@ -66,7 +66,7 @@ shouldn't touch anything already running - the client ID/keys/API key are still 
 (`true`). `install.sh`'s "Update existing values? (y/N)" prompt sets this for you when
 installing through the Helm chart - it defaults to **no**.
 
-## Real k8s resource names (mock-rp-oidc only)
+## Real k8s resource names
 
 `mock-rp-oidc`'s `SYNC_LIVE_DEPLOYMENT` step targets real k8s resources - the mock relying
 party's private-key secret, its service, and its UI deployment. These names must match
@@ -77,6 +77,19 @@ hardcoded here: `MOCK_RELYING_PARTY_SERVICE_NAME`, `MOCK_RELYING_PARTY_UI_NAME`,
 `esignet-mock-services`' `install.sh` already has its own `MOCK_REPLYING_PARTY_SERVICE_NAME`
 variable for its own post-install restart - pass that same value through here via
 `propertiesOverride` instead of letting the two drift apart.
+
+The same applies to the secrets the other modules write - the consuming service's own
+`install.sh` owns these names, so pass them through `propertiesOverride` from there. Leave
+blank to keep the historical defaults:
+
+| Module | Property | Default |
+|---|---|---|
+| `esignet` | `ESIGNET_MISP_KEY_SECRET_NAME` / `ESIGNET_MISP_KEY_SECRET_KEY` | `esignet-misp-onboarder-key` / `mosip-esignet-misp-key` |
+| `resident-oidc` | `RESIDENT_OIDC_CLIENTID_SECRET_NAME` / `RESIDENT_OIDC_CLIENTID_SECRET_KEY` | `resident-oidc-onboarder-key` / `resident-oidc-clientid` |
+| `mimoto-keybinding` | `MIMOTO_KEYBINDING_APIKEY_SECRET_NAME` / `MIMOTO_KEYBINDING_APIKEY_SECRET_KEY` | `mimoto-wallet-binding-partner-api-key` (both) |
+| `mimoto-oidc` | `MIMOTO_OIDC_CLIENTID_SECRET_NAME` / `MIMOTO_OIDC_CLIENTID_SECRET_KEY` | `mimoto-oidc-partner-clientid` (both) |
+| `mimoto-oidc` | `MIMOTO_OIDC_KEYSTORE_SECRET_NAME` | `mimotooidc` |
+| `signup-oidc` | `SIGNUP_KEYSTORE_SECRET_NAME` | `signup-keystore` |
 
 ## OIDC claims/ACRs (mock-rp-oidc, signup-oidc)
 
